@@ -46,8 +46,9 @@ export function ContactSection() {
       if (response.ok) {
         toast({
           title: "Mensagem enviada!",
-          description: result.message || "Entraremos em contato em breve.",
-        })
+          description: "Recebemos sua solicitação e entraremos em contato em breve.",
+          duration: 5000,
+        });
 
         // Limpar formulário
         setFormData({

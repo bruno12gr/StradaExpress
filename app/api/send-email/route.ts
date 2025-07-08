@@ -12,11 +12,15 @@ export async function POST(request: Request) {
     if (!name || !email || !message) {
       return NextResponse.json({ error: "Nome, email e mensagem são obrigatórios" }, { status: 400 })
     }
+    const recipientEmail = process.env.RESEND_EMAIL_TO;
+  if (!recipientEmail) {
+    throw new Error("RESEND_EMAIL_TO environment variable is not defined");
+  }
 
     // ENVIO REAL DE EMAIL usando Resend
     const emailData = await resend.emails.send({
-      from: "contato@stradaexpress.com.br", // Deve ser um domínio verificado no Resend
-      to: ["bhcorreia11@gmail.com"], // Seu email para receber os contatos
+      from: "onboarding@resend.dev",
+      to: [recipientEmail], // Seu email para receber os contatos
       subject: `Novo contato de ${name} - Site Strada Express`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -58,26 +62,22 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "Mensagem enviada com sucesso! Entraremos em contato em breve.",
-      emailId: emailData.id,
+      emailId: emailData.data?.id,
     })
   } catch (error) {
-    console.error("❌ Erro ao enviar email:", error)
+  console.error("❌ Erro ao enviar email:", error);
 
-    // Se for erro de API key ou configuração
-    if (error.message?.includes("API key")) {
-      return NextResponse.json(
-        {
-          error: "Erro de configuração do servidor. Contate o administrador.",
-        },
-        { status: 500 },
-      )
+  // Tratar erros específicos do Resend
+  let errorMessage = "Erro ao enviar mensagem. Tente novamente mais tarde.";
+  
+  if (error instanceof Error) {
+    if (error.message.includes("Invalid 'from' address")) {
+      errorMessage = "Erro de configuração: Remetente inválido";
+    } else if (error.message.includes("API key")) {
+      errorMessage = "Erro de autenticação: Chave API inválida";
     }
+  }
 
-    return NextResponse.json(
-      {
-        error: "Erro ao enviar mensagem. Tente novamente mais tarde.",
-      },
-      { status: 500 },
-    )
+  return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
