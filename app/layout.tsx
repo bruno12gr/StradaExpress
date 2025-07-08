@@ -1,20 +1,26 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
 
+const inter = Inter({ subsets: ['latin'] })
+
+// Adicione esta parte de metadados
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Strada Express - Fretes de Cargas Secas',
+  description: 'Transporte de cargas secas de até 2 toneladas com agilidade e segurança. Atuamos em Indaiatuba e região.',
+  icons: {
+    icon: '/favicon.ico', // Adicione um favicon na pasta public
+  },
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="pt-BR">
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

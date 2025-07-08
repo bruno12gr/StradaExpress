@@ -1,1 +1,3 @@
-module.exports = { server: { host: '0.0.0.0' } }
+ module.exports = {
+     // Configurações válidas aqui
+   };
