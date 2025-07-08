@@ -16,13 +16,27 @@ export function ContactSection() {
     message: "",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically send the form data to your backend
-    console.log("Form submitted:", formData)
-    alert("Mensagem enviada com sucesso! Entraremos em contato em breve.")
-    setFormData({ name: "", email: "", phone: "", message: "" })
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  
+  try {
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+
+    if (response.ok) {
+      alert('Mensagem enviada com sucesso! Entraremos em contato em breve.')
+      setFormData({ name: "", email: "", phone: "", message: "" })
+    } else {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Erro no servidor')
+    }
+  } catch (error) {
+    alert(`Erro ao enviar: ${error.message}`)
   }
+}
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
